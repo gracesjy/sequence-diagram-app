@@ -1,22 +1,57 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import html2canvas from 'html2canvas';
 
-const handleSaveDiagram = () => {
-  const diagramElement = document.querySelector('svg'); // 또는 특정 div로 지정 가능
-  if (!diagramElement) return;
 
-  html2canvas(diagramElement, {
-    backgroundColor: '#ffffff',
-    scale: 2,
-  }).then((canvas) => {
-    const link = document.createElement('a');
-    link.download = 'sequence-diagram.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-};
 
 const SequenceDiagram = () => {
+  const [shiftX, setShiftX] = useState(0); // 초기값은 0
+
+  const handleSaveDiagram = () => {
+    setShiftX(-30); // 저장용 위치로 이동
+
+    const svgElements = document.querySelectorAll('svg');
+    if (svgElements.length === 0) return;
+
+    const combinedHTML = Array.from(svgElements)
+      .map(svg => svg.outerHTML)
+      .join('<br/>'); // SVG 사이에 간격 추가
+
+    const newWindow = window.open('', '', 'width=1000,height=800');
+    if (newWindow) {
+      newWindow.document.write(`
+      <html>
+        <head>
+          <title>시퀀스 다이어그램</title>
+          <style>
+            body { margin: 0; padding: 20px; background: white; }
+          </style>
+        </head>
+        <body>
+          ${combinedHTML}
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+          <script>
+            window.onload = () => {
+              html2canvas(document.body, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+              }).then((canvas) => {
+                const link = document.createElement('a');
+                link.download = 'sequence-diagram.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+              });
+            };
+          </script>
+        </body>
+      </html>
+    `);
+      setShiftX(0); 
+      newWindow.document.close();
+    }
+  };
+
   const nodes = ['Client', 'API Gateway', 'Auth Service', 'User DB', 'Logger'];
   const messages = [
     { from: 'Client', to: 'API Gateway', transaction: 'LoginRequest', detail: '사용자가 로그인 요청을 보냅니다' },
@@ -33,9 +68,9 @@ const SequenceDiagram = () => {
   const boxHeight = 80;
   const imageSize = 40;
   const messageSpacing = 60;
+
   const diagramHeight = messages.length * messageSpacing + 100;
 
-  // 자동 판별: Request/Reply 쌍 인식
   const classifyMessageType = (msg, index) => {
     const pair = messages.find((m, i) =>
       i !== index &&
@@ -48,14 +83,14 @@ const SequenceDiagram = () => {
   };
 
   const colorMap = {
-    request: '#007BFF', // 파란색
-    reply: '#00BFA5',   // 청록색
-    single: '#000000'   // 기본 검정
+    request: '#007BFF',
+    reply: '#00BFA5',
+    single: '#000000'
   };
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* 고정 메뉴 버튼 */}
+      {/* 저장 버튼 */}
       <div
         style={{
           position: 'fixed',
@@ -65,7 +100,7 @@ const SequenceDiagram = () => {
         }}
       >
         <button
-          onClick={() => handleSaveDiagram()}
+          onClick={handleSaveDiagram}
           style={{
             backgroundColor: '#28a745',
             color: '#fff',
@@ -81,8 +116,7 @@ const SequenceDiagram = () => {
         </button>
       </div>
 
-
-      {/* 고정 노드 헤더 */}
+      {/* 노드 헤더 */}
       <div
         style={{
           position: 'fixed',
@@ -101,18 +135,20 @@ const SequenceDiagram = () => {
             return (
               <g key={node}>
                 <rect
-                  x={centerX - boxWidth / 2 + 30}
-                  y={10 + 5}
+                  x={centerX - boxWidth / 2 + 30 + shiftX}
+                  // x={centerX - boxWidth / 2}
+                  y={15}
                   width={boxWidth}
                   height={boxHeight - 20}
                   rx={8}
                   ry={8}
-                  fill="#f0f0f0"
-                  stroke="#999"
+                  fill="transparent" // ✅ 투명 배경
+                  stroke="#ccc"       // ✅ 부드러운 테두리
                 />
                 <image
                   href={`/images/${node}.png`}
-                  x={centerX - imageSize / 2 + 30}
+                  x={centerX - imageSize / 2 + 30 + shiftX}
+                  // \x={centerX - imageSize / 2}
                   y={20}
                   width={imageSize}
                   height={imageSize}
@@ -130,9 +166,10 @@ const SequenceDiagram = () => {
             );
           })}
         </svg>
+        
       </div>
 
-      {/* 스크롤 가능한 메시지 영역 */}
+      {/* 메시지 영역 */}
       <div style={{ marginTop: boxHeight, height: '700px', overflowY: 'auto' }}>
         <svg width="1000" height={diagramHeight}>
           <defs>
