@@ -1,6 +1,21 @@
 import React from 'react';
 import html2canvas from 'html2canvas';
 
+const handleSaveDiagram = () => {
+  const diagramElement = document.querySelector('svg'); // 또는 특정 div로 지정 가능
+  if (!diagramElement) return;
+
+  html2canvas(diagramElement, {
+    backgroundColor: '#ffffff',
+    scale: 2,
+  }).then((canvas) => {
+    const link = document.createElement('a');
+    link.download = 'sequence-diagram.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+};
+
 const SequenceDiagram = () => {
   const nodes = ['Client', 'API Gateway', 'Auth Service', 'User DB', 'Logger'];
   const messages = [
@@ -19,8 +34,8 @@ const SequenceDiagram = () => {
   const imageSize = 40;
   const messageSpacing = 60;
   const diagramHeight = messages.length * messageSpacing + 100;
-  const globalShift = 80; // ✅ 오른쪽으로 전체 이동 (기존 50보다 약간 더 넉넉히)
 
+  // 자동 판별: Request/Reply 쌍 인식
   const classifyMessageType = (msg, index) => {
     const pair = messages.find((m, i) =>
       i !== index &&
@@ -33,49 +48,14 @@ const SequenceDiagram = () => {
   };
 
   const colorMap = {
-    request: '#007BFF',
-    reply: '#00BFA5',
-    single: '#000000',
-  };
-
-  // ✅ 저장 처리 함수 (DOM 복제 + 메시지 포함)
-  const handleSaveDiagram = async () => {
-    const exportSVGs = document.querySelectorAll('.export-svg, .export-messages');
-    if (exportSVGs.length === 0) return;
-
-    const newWindow = window.open('', '', 'width=1200,height=900,scrollbars=yes');
-    if (!newWindow) return;
-
-    const style = newWindow.document.createElement('style');
-    style.innerHTML = `
-      body { margin: 0; padding: 20px; background: white; height: auto; }
-      svg { display: block; margin-bottom: 20px; }
-    `;
-    newWindow.document.head.appendChild(style);
-
-    exportSVGs.forEach(svg => {
-      const clone = svg.cloneNode(true);
-      clone.style.display = 'block';
-      newWindow.document.body.appendChild(clone);
-    });
-
-    setTimeout(() => {
-      html2canvas(newWindow.document.body, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-      }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'sequence-diagram.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    }, 1000);
+    request: '#007BFF', // 파란색
+    reply: '#00BFA5',   // 청록색
+    single: '#000000'   // 기본 검정
   };
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* 저장 버튼 */}
+      {/* 고정 메뉴 버튼 */}
       <div
         style={{
           position: 'fixed',
@@ -85,7 +65,7 @@ const SequenceDiagram = () => {
         }}
       >
         <button
-          onClick={handleSaveDiagram}
+          onClick={() => handleSaveDiagram()}
           style={{
             backgroundColor: '#28a745',
             color: '#fff',
@@ -101,83 +81,44 @@ const SequenceDiagram = () => {
         </button>
       </div>
 
-      {/* 노드 헤더 */}
+
+      {/* 고정 노드 헤더 */}
       <div
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '1100px',
+          width: '1000px',
           height: `${boxHeight}px`,
           background: '#fff',
           zIndex: 10,
           borderBottom: '1px solid #ccc',
         }}
       >
-        {/* 화면용 (+30 offset) */}
-        <svg className="display-svg" width="1100" height={boxHeight}>
+        <svg width="1000" height={boxHeight}>
           {nodes.map((node, index) => {
-            const centerX = globalShift + index * nodeSpacing;
-            const shift = 30;
+            const centerX = index * nodeSpacing + 50;
             return (
               <g key={node}>
                 <rect
-                  x={centerX - boxWidth / 2 + shift}
-                  y={15}
+                  x={centerX - boxWidth / 2 + 30}
+                  y={10 + 5}
                   width={boxWidth}
                   height={boxHeight - 20}
                   rx={8}
                   ry={8}
-                  fill="transparent"
-                  stroke="#ccc"
+                  fill="#f0f0f0"
+                  stroke="#999"
                 />
                 <image
                   href={`/images/${node}.png`}
-                  x={centerX - imageSize / 2 + shift}
+                  x={centerX - imageSize / 2 + 30}
                   y={20}
                   width={imageSize}
                   height={imageSize}
                 />
                 <text
-                  x={centerX + shift}
-                  y={70}
-                  textAnchor="middle"
-                  fontSize="12"
-                  fontWeight="bold"
-                >
-                  {node}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* 저장용 (-30 offset) */}
-        <svg className="export-svg" width="1100" height={boxHeight} style={{ display: 'none' }}>
-          {nodes.map((node, index) => {
-            const centerX = globalShift + index * nodeSpacing;
-            const shift = 0;
-            return (
-              <g key={node}>
-                <rect
-                  x={centerX - boxWidth / 2 + shift}
-                  y={15}
-                  width={boxWidth}
-                  height={boxHeight - 20}
-                  rx={8}
-                  ry={8}
-                  fill="transparent"
-                  stroke="#ccc"
-                />
-                <image
-                  href={`/images/${node}.png`}
-                  x={centerX - imageSize / 2 + shift}
-                  y={20}
-                  width={imageSize}
-                  height={imageSize}
-                />
-                <text
-                  x={centerX + shift}
+                  x={centerX + 30}
                   y={70}
                   textAnchor="middle"
                   fontSize="12"
@@ -191,18 +132,25 @@ const SequenceDiagram = () => {
         </svg>
       </div>
 
-      {/* 메시지 영역 */}
+      {/* 스크롤 가능한 메시지 영역 */}
       <div style={{ marginTop: boxHeight, height: '700px', overflowY: 'auto' }}>
-        <svg className="export-messages" width="1100" height={diagramHeight}>
+        <svg width="1000" height={diagramHeight}>
           <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+            <marker
+              id="arrow"
+              markerWidth="10"
+              markerHeight="10"
+              refX="10"
+              refY="5"
+              orient="auto"
+            >
               <path d="M0,0 L10,5 L0,10 Z" fill="black" />
             </marker>
           </defs>
 
           {/* 수직 점선 */}
           {nodes.map((node, index) => {
-            const centerX = globalShift + index * nodeSpacing;
+            const centerX = index * nodeSpacing + 50;
             return (
               <line
                 key={node}
@@ -220,21 +168,42 @@ const SequenceDiagram = () => {
           {messages.map((msg, i) => {
             const fromIndex = nodes.indexOf(msg.from);
             const toIndex = nodes.indexOf(msg.to);
-            const y = (i + 1) * messageSpacing + 40;
-            const x1 = globalShift + fromIndex * nodeSpacing;
-            const x2 = globalShift + toIndex * nodeSpacing;
+            const y = boxHeight + (i + 1) * messageSpacing;
+
+            const x1 = fromIndex * nodeSpacing + 50;
+            const x2 = toIndex * nodeSpacing + 50;
             const midX = (x1 + x2) / 2;
+
             const type = classifyMessageType(msg, i);
             const strokeColor = colorMap[type] || '#000';
 
             return (
               <g key={i}>
                 <title>{msg.detail}</title>
-                <text x={midX} y={y - 10} textAnchor="middle" fontSize="12" fill="#333">
+                <text
+                  x={midX}
+                  y={y - 10}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fill="#333"
+                >
                   {msg.transaction}
                 </text>
-                <line x1={x1} y1={y} x2={x2} y2={y} stroke={strokeColor} markerEnd="url(#arrow)" />
-                <text x={midX} y={y + 15} textAnchor="middle" fontSize="12" fill="#666">
+                <line
+                  x1={x1}
+                  y1={y}
+                  x2={x2}
+                  y2={y}
+                  stroke={strokeColor}
+                  markerEnd="url(#arrow)"
+                />
+                <text
+                  x={midX}
+                  y={y + 15}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fill="#666"
+                >
                   {msg.detail}
                 </text>
               </g>
