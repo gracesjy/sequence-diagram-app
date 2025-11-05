@@ -74,6 +74,62 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
       { from: "EAP", to: "EIS", transaction: "EAPEIS_PORT_ARRIVED", detail: "EAP이 EIS로 EAPEIS_PORT_ARRIVED 호출" },
     ],
   },
+  {
+    name: "CARRIER READ",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_MAP", detail: "EQP이 EAP로 ERS_MAP 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_VERIFY_SLOT_REQ", detail: "EAP이 EIS로 EAPEIS_VERIFY_SLOT_REQ 호출" },
+    ],
+  },
+  {
+    name: "CARRIER READ SUCC",
+    messages: [
+      { from: "EAP", to: "EIS", transaction: "EISEAP_VERIFY_SLOT_SUCC", detail: "EAP이 EIS로 EISEAP_VERIFY_SLOT_SUCC 전송" },
+      { from: "EAP", to: "EQP", transaction: "HCS_PRJOB_CREATE", detail: "EAP이 EQP로 HCS_PRJOB_CREATE 송신" },
+    ],
+  },
+  {
+    name: "START CMD REQ",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_START_CMD_REQ", detail: "EAP이 EIS로 EAPEIS_START_CMD_REQ 호출" },
+    ],
+  },
+  {
+    name: "START CMD",
+    messages: [
+      { from: "EAP", to: "EIS", transaction: "EISEAP_START_CMD", detail: "EAP이 EIS로 EISEAP_START_CMD 전송" },
+      { from: "EAP", to: "EQP", transaction: "HCS_START", detail: "EAP이 EQP로 HCS_START 송신" },
+    ],
+  },
+  {
+    name: "MVIN",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_MVIN_REQ", detail: "EAP이 EIS로 EAPEIS_MVIN_REQ 호출" },
+    ],
+  },
+  {
+    name: "STEPPERSTART",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_INLINE", detail: "EQP이 EAP로 ERS_INLINE 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_STEPPER_START_REQ", detail: "EAP이 EIS로 EAPEIS_STEPPER_START_REQ 호출" },
+    ],
+  },
+  {
+    name: "MVOU",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_MVOU_REQ", detail: "EAP이 EIS로 EAPEIS_MVOU_REQ 호출" },
+    ],
+  },
+  {
+    name: "PORT UNLOAD",
+    messages: [
+      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
+      { from: "EAP", to: "EIS", transaction: "EAPEIS_PORT_UNLOAD", detail: "EAP이 EIS로 EAPEIS_PORT_UNLOAD 호출" },
+    ],
+  },
 ];
 
   const nodeSpacing = 200;
