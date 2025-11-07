@@ -7,6 +7,242 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: "" });
   const containerRef = useRef(null);
 
+  const phases_EQMode = [
+  { name: "ONLINE_LOCAL_REP", messages: [{ from: "EQP", to: "EAP", transaction: "ERS_PROC" }, { from: "EAP", to: "EIS", transaction: "EAPEIS_EQMODE_OL" }] },
+  { name: "ONLINE_REMOTE_REQ", messages: [{ from: "EIS", to: "EAP", transaction: "EISEAP_EQMODE_OR_REQ" }, { from: "EAP", to: "EQP", transaction: "RONL" }] },
+  { name: "ONLINE_REMOTE_REP", messages: [{ from: "EQP", to: "EAP", transaction: "ERS_PROC" }, { from: "EAP", to: "EIS", transaction: "EAPEIS_EQMODE_OR" }] },
+  { name: "OFFLINE_REQ", messages: [{ from: "EIS", to: "EAP", transaction: "EISEAP_EQMODE_OF_REQ" }, { from: "EAP", to: "EQP", transaction: "ROFL" }] },
+  { name: "OFFLINE_REP", messages: [{ from: "EQP", to: "EAP", transaction: "ERS_PROC" }, { from: "EAP", to: "EIS", transaction: "EAPEIS_EQMODE_OF" }] },
+];
+
+const phases_LotTracking = [
+  {
+    "name": "JOB_INFO_RESV",
+    "messages": [
+      {
+        "from": "EIS",
+        "to": "EAP",
+        "transaction": "EISEAP_JOB_INFO_RESV",
+        "detail": "EAP이 EQP로 EISEAP_JOB_INFO_RESV 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "PPIDCHECK",
+        "detail": "EAP이 EQP로 PPIDCHECK 전송"
+      }
+    ]
+  },
+  {
+    "name": "PPID_SUCC",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "S7F20",
+        "detail": "EQP이 EAP로 RED_1 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EAP",
+        "transaction": "EAP_PPIDCHECK",
+        "detail": "EAP이 EQP로 EAP_PPIDCHECK 호출"
+      }
+    ]
+  },
+  {
+    "name": "CARRIER_ARRIVED",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MODE",
+        "detail": "EQP이 EAP로 ERS_MODE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_PORT_ARRIVED",
+        "detail": "EAP이 EQP로 EAPEIS_PORT_ARRIVED 호출"
+      }
+    ]
+  },
+  {
+    "name": "CARRIER_READ",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MAP",
+        "detail": "EQP이 EAP로 ERS_MAP 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_VERIFY_SLOT_REQ",
+        "detail": "EAP이 EQP로 EAPEIS_VERIFY_SLOT_REQ 호출"
+      }
+    ]
+  },
+  {
+    "name": "CARRIER_READ_SUCC",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EISEAP_VERIFY_SLOT_SUCC",
+        "detail": "EAP이 EQP로 EISEAP_VERIFY_SLOT_SUCC 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "HCS_PRJOB_CREATE",
+        "detail": "EAP이 EQP로 HCS_PRJOB_CREATE 전송"
+      }
+    ]
+  },
+  {
+    "name": "START_CMD_REQ",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MODE",
+        "detail": "EQP이 EAP로 ERS_MODE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_START_CMD_REQ",
+        "detail": "EAP이 EQP로 EAPEIS_START_CMD_REQ 호출"
+      }
+    ]
+  },
+  {
+    "name": "START_CMD",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EISEAP_START_CMD",
+        "detail": "EAP이 EQP로 EISEAP_START_CMD 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "HCS_START",
+        "detail": "EAP이 EQP로 HCS_START 전송"
+      }
+    ]
+  },
+  {
+    "name": "MVIN",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MODE",
+        "detail": "EQP이 EAP로 ERS_MODE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_MVIN_REQ",
+        "detail": "EAP이 EQP로 EAPEIS_MVIN_REQ 호출"
+      },
+      {
+        "from": "EAP",
+        "to": "FDC",
+        "transaction": "EAPFDC_TOOLEVENT",
+        "detail": "EAP이 FDC로 EAPFDC_TOOLEVENT 호출"
+      }
+    ]
+  },
+  {
+    "name": "STEPPERSTART",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_INLINE",
+        "detail": "EQP이 EAP로 ERS_INLINE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_STEPPER_START_REQ",
+        "detail": "EAP이 EQP로 EAPEIS_STEPPER_START_REQ 호출"
+      }
+    ]
+  },
+  {
+    "name": "MVOU",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MODE",
+        "detail": "EQP이 EAP로 ERS_MODE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_MVOU_REQ",
+        "detail": "EAP이 EQP로 EAPEIS_MVOU_REQ 호출"
+      },
+      {
+        "from": "EAP",
+        "to": "FDC",
+        "transaction": "EAPFDC_TOOLEVENT",
+        "detail": "EAP이 FDC로 EAPFDC_TOOLEVENT 호출"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAP_CHANNELREMOVE",
+        "detail": "EAP이 EQP로 EAP_CHANNELREMOVE 호출"
+      }
+    ]
+  },
+  {
+    "name": "PORT_UNLOAD",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ERS_MODE",
+        "detail": "EQP이 EAP로 ERS_MODE 수신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EAPEIS_PORT_UNLOAD",
+        "detail": "EAP이 EQP로 EAPEIS_PORT_UNLOAD 호출"
+      }
+    ]
+  }
+];
+
+const phases_FDC = [
+  { name: "SETSENSOR", messages: [{ from: "EIS", to: "EAP", transaction: "FDCEAP_SETSENSOR" }] },
+  { name: "STOPSENSOR", messages: [{ from: "EIS", to: "EAP", transaction: "FDCEAP_STOPSENSOR" }] },
+  { name: "TOOLDATA", messages: [{ from: "EQP", to: "EAP", transaction: "TRACE_DATA" }, { from: "EAP", to: "FDC", transaction: "EAPFDC_TOOLDATA" }] },
+];
+
+// === 여러 시나리오를 모아둔 Map ===
+const allPhaseSets = {
+  "EQMode": phases_EQMode,
+  "LotTracking": phases_LotTracking,
+  "FDC": phases_FDC,
+};
+
+
+  const handleSelectChange = (e) => {
+    const key = e.target.value;
+    setSelectedScenario(key);
+    setPhases(allPhaseSets[key]);
+  };
+
   const handleSaveDiagram = () => {
     setShiftX(-30);
     const svgElements = document.querySelectorAll("svg");
@@ -51,86 +287,205 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
   };
 
   // Nodes and phases (same as before)
-  const nodes = ["EQP", "EAP", "EIS"];
+  const nodes = ["EQP", "EAP", "EIS", "FDC"];
+  /*
   const phases = [
   {
-    name: "JOB INFO RESV",
-    messages: [
-      { from: "EAP", to: "EIS", transaction: "EISEAP_JOB_INFO_RESV", detail: "EAP이 EIS로 EISEAP_JOB_INFO_RESV 전송" },
-      { from: "EAP", to: "EQP", transaction: "PPIDCHECK", detail: "EAP이 EQP로 PPIDCHECK 송신" },
-    ],
+    "name": "INIT",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "CR_H",
+        "detail": "EAP이 EQP로 CR_H 전송"
+      }
+    ]
   },
   {
-    name: "PPID SUCC",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "RED_1", detail: "EQP이 EAP로 RED_1 수신" },
-      { from: "EAP", to: "EAP", transaction: "EAP_PPIDCHECK", detail: "EAP이 EIS로 EAP_PPIDCHECK 호출" },
-    ],
+    "name": "INIT_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "CRA_E",
+        "detail": "EQP이 EAP로 CRA_E 수신"
+      }
+    ]
   },
   {
-    name: "CARRIER ARRIVED",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_PORT_ARRIVED", detail: "EAP이 EIS로 EAPEIS_PORT_ARRIVED 호출" },
-    ],
+    "name": "ALLDisableEventReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "INIT_ACK",
+        "detail": "EAP이 EQP로 INIT_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "DER",
+        "detail": "EAP이 EQP로 DER 전송"
+      }
+    ]
   },
   {
-    name: "CARRIER READ",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MAP", detail: "EQP이 EAP로 ERS_MAP 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_VERIFY_SLOT_REQ", detail: "EAP이 EIS로 EAPEIS_VERIFY_SLOT_REQ 호출" },
-    ],
+    "name": "ALL_DISABLE_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "DEA",
+        "detail": "EQP이 EAP로 DEA 수신"
+      }
+    ]
   },
   {
-    name: "CARRIER READ SUCC",
-    messages: [
-      { from: "EAP", to: "EIS", transaction: "EISEAP_VERIFY_SLOT_SUCC", detail: "EAP이 EIS로 EISEAP_VERIFY_SLOT_SUCC 전송" },
-      { from: "EAP", to: "EQP", transaction: "HCS_PRJOB_CREATE", detail: "EAP이 EQP로 HCS_PRJOB_CREATE 송신" },
-    ],
+    "name": "UnLinkEventReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "ALL_DISABLE_ACK",
+        "detail": "EAP이 EQP로 ALL_DISABLE_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "ULER",
+        "detail": "EAP이 EQP로 ULER 전송"
+      }
+    ]
   },
   {
-    name: "START CMD REQ",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_START_CMD_REQ", detail: "EAP이 EIS로 EAPEIS_START_CMD_REQ 호출" },
-    ],
+    "name": "UNLINK_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "ULERA",
+        "detail": "EQP이 EAP로 ULERA 수신"
+      }
+    ]
   },
   {
-    name: "START CMD",
-    messages: [
-      { from: "EAP", to: "EIS", transaction: "EISEAP_START_CMD", detail: "EAP이 EIS로 EISEAP_START_CMD 전송" },
-      { from: "EAP", to: "EQP", transaction: "HCS_START", detail: "EAP이 EQP로 HCS_START 송신" },
-    ],
+    "name": "UnDefineReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "UNLINK_ACK",
+        "detail": "EAP이 EQP로 UNLINK_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "UDR",
+        "detail": "EAP이 EQP로 UDR 전송"
+      }
+    ]
   },
   {
-    name: "MVIN",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_MVIN_REQ", detail: "EAP이 EIS로 EAPEIS_MVIN_REQ 호출" },
-    ],
+    "name": "UNDEFINE_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "UDRA",
+        "detail": "EQP이 EAP로 UDRA 수신"
+      }
+    ]
   },
   {
-    name: "STEPPERSTART",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_INLINE", detail: "EQP이 EAP로 ERS_INLINE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_STEPPER_START_REQ", detail: "EAP이 EIS로 EAPEIS_STEPPER_START_REQ 호출" },
-    ],
+    "name": "DefineReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "UNDEFINE_ACK",
+        "detail": "EAP이 EQP로 UNDEFINE_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "DR",
+        "detail": "EAP이 EQP로 DR 전송"
+      }
+    ]
   },
   {
-    name: "MVOU",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_MVOU_REQ", detail: "EAP이 EIS로 EAPEIS_MVOU_REQ 호출" },
-    ],
+    "name": "DEFINE_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "DRA",
+        "detail": "EQP이 EAP로 DRA 수신"
+      }
+    ]
   },
   {
-    name: "PORT UNLOAD",
-    messages: [
-      { from: "EQP", to: "EAP", transaction: "ERS_MODE", detail: "EQP이 EAP로 ERS_MODE 수신" },
-      { from: "EAP", to: "EIS", transaction: "EAPEIS_PORT_UNLOAD", detail: "EAP이 EIS로 EAPEIS_PORT_UNLOAD 호출" },
-    ],
+    "name": "LinkEventReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "DEFINE_ACK",
+        "detail": "EAP이 EQP로 DEFINE_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "LER",
+        "detail": "EAP이 EQP로 LER 전송"
+      }
+    ]
   },
+  {
+    "name": "LINK_ACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "LERA",
+        "detail": "EQP이 EAP로 LERA 수신"
+      }
+    ]
+  },
+  {
+    "name": "ALLEnableEventReport",
+    "messages": [
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "LINK_ACK",
+        "detail": "EAP이 EQP로 LINK_ACK 송신"
+      },
+      {
+        "from": "EAP",
+        "to": "EQP",
+        "transaction": "EER_2",
+        "detail": "EAP이 EQP로 EER_2 전송"
+      }
+    ]
+  },
+  {
+    "name": "ALLENABLEACK",
+    "messages": [
+      {
+        "from": "EQP",
+        "to": "EAP",
+        "transaction": "DEA_1",
+        "detail": "EQP이 EAP로 DEA_1 수신"
+      }
+    ]
+  }
 ];
+*/
+  const [selectedScenario, setSelectedScenario] = useState("LotTracking");
+  const [phases, setPhases] = useState(allPhaseSets["LotTracking"]);
+
+
 
   const nodeSpacing = 200;
   const boxWidth = 100;
@@ -186,7 +541,39 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
   };
 
   return (
+    
     <div style={{ position: "relative" }} ref={containerRef}>
+      {/* === ✅ 시나리오 선택 콤보박스 추가 === */}
+      <div
+        style={{
+          position: "fixed",
+          top: "10px",
+          right: "150px",
+          zIndex: 200,
+          background: "#fff",
+          padding: "6px 8px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        }}
+      >
+        <label style={{ fontSize: "13px", fontWeight: "bold", marginRight: "6px" }}>
+          시나리오:
+        </label>
+        <select
+          value={selectedScenario}
+          onChange={handleSelectChange}
+          style={{
+            fontSize: "13px",
+            padding: "4px 6px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+          }}
+        >
+          {Object.keys(allPhaseSets).map((key) => (
+            <option key={key} value={key}>{key}</option>
+          ))}
+        </select>
+      </div>
       {/* 저장 버튼 */}
       <div
         style={{
@@ -212,6 +599,7 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
           시퀀스저장
         </button>
       </div>
+      
 
       {/* 노드 헤더 */}
       <div
