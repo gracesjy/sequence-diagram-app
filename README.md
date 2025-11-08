@@ -71,7 +71,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-## 나의 첫 작품 (AI 바이브코딩)
+## 나의 React 첫 작품 (AI 바이브코딩)
+
 ### Simple Backend
 백엔드는 다음으로 실행
 ```
