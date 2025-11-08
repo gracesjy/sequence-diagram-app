@@ -14,8 +14,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### for internet
-https://codesandbox.io/s/github/gracesjy/sequence-diagram-app
 
 
 ### `npm test`
@@ -73,9 +71,17 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-
-### backend
-
+## 나의 첫 작품 (AI 바이브코딩)
+### Simple Backend
+백엔드는 다음으로 실행
 ```
 uvicorn main:app --reload
 ```
+
+### React 만 실행
+위의 백엔드가 없을 때에는 강제로 내장되어 있는 데이터를 가지고 기동된다.
+```
+npm start
+```
+### Code SandBox 에서 실행
+https://codesandbox.io/s/github/gracesjy/sequence-diagram-app
