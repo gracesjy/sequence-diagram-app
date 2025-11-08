@@ -630,7 +630,7 @@ const allPhaseSets = {
                   stroke="#ccc"
                 />
                 <image
-                  href="/images/System.png"
+                  href={`/images/${node}.png`}
                   x={centerX - 20}
                   y={20}
                   width="40"
@@ -638,7 +638,7 @@ const allPhaseSets = {
                 />
                 <text
                   x={centerX + shiftX}
-                  y={65}
+                  y={70}
                   textAnchor="middle"
                   fontSize="12"
                   fontWeight="bold"
