@@ -2,7 +2,8 @@
 
 # dependencies
 /build
-/front/build
+/frontend
+/backend/__pycache__/
 /node_modules
 /.pnp
 .pnp.js
