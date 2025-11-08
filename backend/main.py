@@ -299,4 +299,4 @@ def get_phases():
 #app.mount("/images", StaticFiles(directory="../frontend/build/images"), name="images")
 
 
-#app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="../frontend/build", html=True), name="frontend")

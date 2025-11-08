@@ -57,6 +57,7 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
       // if you use relative path in production, change to fetch("/api/phases")
       .then((res) => res.json())
       .then((data) => {
+        //console.log(JSON.stringify(data));
         setAllPhaseSets(data);
         // if backend returns an object and selectedScenario exists in it, set initial phases
         if (data && data[selectedScenario]) {
@@ -65,6 +66,19 @@ const SequenceDiagramPhasedColorizedTooltip = () => {
       })
       .catch((err) => {
         console.error("Failed to fetch phase data:", err);
+        // ✅ fallback JSON string - Offline 경우
+      const fallbackJson = `{"EQMode":[{"name":"ONLINE_LOCAL_REP","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_PROC"},{"from":"EAP","to":"EIS","transaction":"EAPEIS_EQMODE_OL"}]},{"name":"ONLINE_REMOTE_REQ","messages":[{"from":"EIS","to":"EAP","transaction":"EISEAP_EQMODE_OR_REQ"},{"from":"EAP","to":"EQP","transaction":"RONL"}]},{"name":"ONLINE_REMOTE_REP","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_PROC"},{"from":"EAP","to":"EIS","transaction":"EAPEIS_EQMODE_OR"}]},{"name":"OFFLINE_REQ","messages":[{"from":"EIS","to":"EAP","transaction":"EISEAP_EQMODE_OF_REQ"},{"from":"EAP","to":"EQP","transaction":"ROFL"}]},{"name":"OFFLINE_REP","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_PROC"},{"from":"EAP","to":"EIS","transaction":"EAPEIS_EQMODE_OF"}]}],"LotTracking":[{"name":"JOB_INFO_RESV","messages":[{"from":"EIS","to":"EAP","transaction":"EISEAP_JOB_INFO_RESV","detail":"EAP이 EQP로 EISEAP_JOB_INFO_RESV 송신"},{"from":"EAP","to":"EQP","transaction":"PPIDCHECK","detail":"EAP이 EQP로 PPIDCHECK 전송"}]},{"name":"PPID_SUCC","messages":[{"from":"EQP","to":"EAP","transaction":"S7F20","detail":"EQP이 EAP로 RED_1 수신"},{"from":"EAP","to":"EAP","transaction":"EAP_PPIDCHECK","detail":"EAP이 EQP로 EAP_PPIDCHECK 호출"}]},{"name":"CARRIER_ARRIVED","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MODE","detail":"EQP이 EAP로 ERS_MODE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_PORT_ARRIVED","detail":"EAP이 EQP로 EAPEIS_PORT_ARRIVED 호출"}]},{"name":"CARRIER_READ","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MAP","detail":"EQP이 EAP로 ERS_MAP 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_VERIFY_SLOT_REQ","detail":"EAP이 EQP로 EAPEIS_VERIFY_SLOT_REQ 호출"}]},{"name":"CARRIER_READ_SUCC","messages":[{"from":"EAP","to":"EQP","transaction":"EISEAP_VERIFY_SLOT_SUCC","detail":"EAP이 EQP로 EISEAP_VERIFY_SLOT_SUCC 송신"},{"from":"EAP","to":"EQP","transaction":"HCS_PRJOB_CREATE","detail":"EAP이 EQP로 HCS_PRJOB_CREATE 전송"}]},{"name":"START_CMD_REQ","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MODE","detail":"EQP이 EAP로 ERS_MODE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_START_CMD_REQ","detail":"EAP이 EQP로 EAPEIS_START_CMD_REQ 호출"}]},{"name":"START_CMD","messages":[{"from":"EAP","to":"EQP","transaction":"EISEAP_START_CMD","detail":"EAP이 EQP로 EISEAP_START_CMD 송신"},{"from":"EAP","to":"EQP","transaction":"HCS_START","detail":"EAP이 EQP로 HCS_START 전송"}]},{"name":"MVIN","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MODE","detail":"EQP이 EAP로 ERS_MODE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_MVIN_REQ","detail":"EAP이 EQP로 EAPEIS_MVIN_REQ 호출"},{"from":"EAP","to":"FDC","transaction":"EAPFDC_TOOLEVENT","detail":"EAP이 FDC로 EAPFDC_TOOLEVENT 호출"}]},{"name":"STEPPERSTART","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_INLINE","detail":"EQP이 EAP로 ERS_INLINE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_STEPPER_START_REQ","detail":"EAP이 EQP로 EAPEIS_STEPPER_START_REQ 호출"}]},{"name":"MVOU","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MODE","detail":"EQP이 EAP로 ERS_MODE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_MVOU_REQ","detail":"EAP이 EQP로 EAPEIS_MVOU_REQ 호출"},{"from":"EAP","to":"FDC","transaction":"EAPFDC_TOOLEVENT","detail":"EAP이 FDC로 EAPFDC_TOOLEVENT 호출"},{"from":"EAP","to":"EQP","transaction":"EAP_CHANNELREMOVE","detail":"EAP이 EQP로 EAP_CHANNELREMOVE 호출"}]},{"name":"PORT_UNLOAD","messages":[{"from":"EQP","to":"EAP","transaction":"ERS_MODE","detail":"EQP이 EAP로 ERS_MODE 수신"},{"from":"EAP","to":"EQP","transaction":"EAPEIS_PORT_UNLOAD","detail":"EAP이 EQP로 EAPEIS_PORT_UNLOAD 호출"}]}],"FDC":[{"name":"SETSENSOR","messages":[{"from":"EIS","to":"EAP","transaction":"FDCEAP_SETSENSOR"}]},{"name":"STOPSENSOR","messages":[{"from":"EIS","to":"EAP","transaction":"FDCEAP_STOPSENSOR"}]},{"name":"TOOLDATA","messages":[{"from":"EQP","to":"EAP","transaction":"TRACE_DATA"},{"from":"EAP","to":"FDC","transaction":"EAPFDC_TOOLDATA"}]}]}`;
+
+      try {
+        const parsed = JSON.parse(fallbackJson);
+        setAllPhaseSets(parsed);
+        if (parsed[selectedScenario]) {
+          setPhases(parsed[selectedScenario]);
+        }
+      } catch (parseErr) {
+        console.error("❌ Failed to parse fallback JSON:", parseErr);
+      }
+
       });
   }, []); // 컴포넌트 마운트 시 한 번
 
